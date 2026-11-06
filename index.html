@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeoGrid Aguas · En vivo</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f4f1; --surface: #fcfcfb; --line: #e3e2dc; --grid: #ecebe6;
+    --ink: #0b0b0b; --ink2: #52514e; --ink3: #77766f;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+    --ok: #1a7f4b; --warn: #b36b00; --bad: #c4332f; --off: #8a8982;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #121211; --surface: #1a1a19; --line: #2e2e2b; --grid: #262624;
+      --ink: #f0efec; --ink2: #c3c2b7; --ink3: #94938a;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+      --ok: #4cc38a; --warn: #e0a23a; --bad: #f0706c; --off: #77766f;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --line: #2e2e2b; --grid: #262624;
+    --ink: #f0efec; --ink2: #c3c2b7; --ink3: #94938a;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --ok: #4cc38a; --warn: #e0a23a; --bad: #f0706c; --off: #77766f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: var(--surface); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 650; letter-spacing: -.01em; }
+  header h1 span { color: var(--ink3); font-weight: 450; }
+  .estado { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink2); font-size: 13px; }
+  .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--off); }
+  .punto.vivo { background: var(--ok); box-shadow: 0 0 0 0 var(--ok); animation: pulso 2s infinite; }
+  .punto.espera { background: var(--warn); }
+  @keyframes pulso { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--ink3); }
+  button:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; display: grid; gap: 16px; }
+  .banda { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink2); font-size: 14px; }
+  .banda.aviso { border-color: var(--warn); }
+  .tarjetas { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .tarjeta { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .tarjeta h2 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--ink2); display: flex; align-items: center; gap: 8px; }
+  .marca { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .valor { font-size: 34px; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .valor small { font-size: 15px; font-weight: 450; color: var(--ink3); margin-left: 4px; }
+  .sub { color: var(--ink3); font-size: 12.5px; margin-top: 2px; }
+  .barra { height: 10px; border-radius: 5px; background: var(--grid); margin-top: 12px; position: relative; overflow: hidden; }
+  .barra i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; transition: width .4s; }
+  .marcas { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--surface); }
+  .insignia { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12.5px; font-weight: 600; border: 1px solid currentColor; }
+  .paneles { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .paneles { grid-template-columns: 2fr 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+  .panel h3 { margin: 0 0 2px; font-size: 15px; }
+  .panel .sub { margin-bottom: 10px; }
+  .leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--ink2); margin-bottom: 6px; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .grafica { position: relative; }
+  .grafica svg { width: 100%; height: auto; display: block; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font-size: 12.5px; box-shadow: 0 4px 14px rgba(0,0,0,.18); white-space: nowrap; transform: translate(-50%, -110%); display: none; }
+  ul.lista { list-style: none; margin: 0; padding: 0; max-height: 330px; overflow: auto; }
+  ul.lista li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; }
+  ul.lista li:last-child { border-bottom: 0; }
+  ul.lista time { color: var(--ink3); font-variant-numeric: tabular-nums; font-size: 12.5px; }
+  .vacio { color: var(--ink3); font-size: 13.5px; padding: 8px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  th { color: var(--ink2); font-weight: 600; }
+  footer { text-align: center; color: var(--ink3); font-size: 12.5px; padding-bottom: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>NeoGrid <span>· Tuberías y aguas residuales · en vivo</span></h1>
+  <div class="estado" role="status" aria-live="polite">
+    <span class="punto" id="punto"></span><span id="estadoTxt">Conectando…</span>
+    <button id="tema" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+  </div>
+</header>
+
+<main>
+  <div class="banda" id="banda">Esperando lecturas de la maqueta…</div>
+
+  <section class="tarjetas" aria-label="Estado actual">
+    <article class="tarjeta">
+      <h2><span class="marca" style="background:var(--s1)"></span>Tanque 1 · sensor 1</h2>
+      <div class="valor" id="t1est">–</div>
+      <div class="sub" id="t1adc">sin lectura</div>
+      <div class="barra"><i id="t1bar" style="width:0;background:var(--s1)"></i><span class="marcas" style="left:73.26%"></span></div>
+    </article>
+    <article class="tarjeta">
+      <h2><span class="marca" style="background:var(--s2)"></span>Tanque 2 · sensor 2</h2>
+      <div class="valor" id="t2est">–</div>
+      <div class="sub" id="t2adc">sin lectura</div>
+      <div class="barra"><i id="t2bar" style="width:0;background:var(--s2)"></i><span class="marcas" style="left:29.3%"></span></div>
+    </article>
+    <article class="tarjeta">
+      <h2><span class="marca" style="background:var(--s3)"></span>Flujo</h2>
+      <div class="valor" id="flujo">–<small>L/min</small></div>
+      <div class="sub" id="flujoSub">sin lectura</div>
+    </article>
+    <article class="tarjeta">
+      <h2>Bomba</h2>
+      <div class="valor" id="bomba" style="font-size:30px">–</div>
+      <div class="sub" id="bombaSub">sin lectura</div>
+    </article>
+  </section>
+
+  <section class="paneles">
+    <div class="panel">
+      <h3>Lectura de los sensores de nivel</h3>
+      <div class="sub">Valor del sensor (0 a 4095), últimos minutos. Las líneas punteadas son los umbrales: por encima, el sensor detecta agua.</div>
+      <div class="leyenda"><span><i class="marca" style="background:var(--s1)"></i>Sensor 1 (tanque 1)</span><span><i class="marca" style="background:var(--s2)"></i>Sensor 2 (tanque 2)</span></div>
+      <div class="grafica" id="gNivel"></div>
+    </div>
+    <div class="panel">
+      <h3>Alertas y eventos</h3>
+      <div class="sub">Cambios de estado de los sensores y de la bomba, y alertas calculadas en el navegador.</div>
+      <ul class="lista" id="alertas"><li class="vacio">Sin alertas.</li></ul>
+    </div>
+  </section>
+
+  <section class="paneles">
+    <div class="panel">
+      <h3>Flujo de agua</h3>
+      <div class="sub">Litros por minuto, medidos por el sensor YF-S201.</div>
+      <div class="grafica" id="gFlujo"></div>
+    </div>
+    <div class="panel">
+      <h3>Últimas lecturas</h3>
+      <div class="sub">Dato físico (maqueta)</div>
+      <table><thead><tr><th>Hora</th><th>Sensor</th><th>Valor</th></tr></thead><tbody id="tabla"></tbody></table>
+    </div>
+  </section>
+
+  <section class="panel" id="panelPrueba">
+    <h3>Prueba sin maqueta</h3>
+    <div class="sub">Genera lecturas inventadas solo en este navegador, para ver cómo reacciona el tablero. No se guardan ni las ve nadie más.</div>
+    <button id="btnSim">Iniciar prueba local</button>
+  </section>
+</main>
+<footer>NeoGrid · Curso de Big Data · Datos reales de la maqueta física, reenviados por el computador del grupo.</footer>
+
+<script>
+"use strict";
+const UMBRAL = { NIVEL_T1: 3000, NIVEL_T2: 1200 };   // del código de la ESP32: desde ese valor el sensor "detecta agua"
+const FLUJO_MIN_BOMBA = 0.2, GRACIA_BOMBA_MS = 6000, SIN_DATOS_MS = 5 * 60 * 1000, ADC_MAX = 4095;
+const COLOR = { bad: "--bad", warn: "--warn", info: "--ink2" };
+const VENTANA_MS = 5 * 60 * 1000;          // lo que muestran las gráficas
+const NOMBRE = { NIVEL_T1: "Sensor 1 (tanque 1)", NIVEL_T2: "Sensor 2 (tanque 2)", FLUJO_1: "Flujo", ESTADO_B1: "Bomba" };
+
+const hist = { NIVEL_T1: [], NIVEL_T2: [], FLUJO_1: [], ESTADO_B1: [] };
+const ultimo = {};
+const alertas = [];
+const recientes = [];
+const abiertas = {};                        // episodios de alerta en curso
+let ultimaLlegada = 0, simulando = null, sobreGrafica = false, bombaDesde = null;
+const estadoAgua = {};
+let estadoBomba;
+
+const $ = (id) => document.getElementById(id);
+const pct = (adc) => Math.max(0, Math.min(100, adc * 100 / ADC_MAX));
+const hora = (ms) => new Date(ms).toLocaleTimeString("es-CO", { hour12: false });
+const num = (n, d = 1) => n.toLocaleString("es-CO", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+/* ---------- tema ---------- */
+(function () {
+  let guardado = null;
+  try { guardado = localStorage.getItem("tema"); } catch (e) {}
+  if (guardado) document.documentElement.dataset.theme = guardado;
+  $("tema").onclick = () => {
+    const oscuro = getComputedStyle(document.documentElement).colorScheme === "dark";
+    const nuevo = oscuro ? "light" : "dark";
+    document.documentElement.dataset.theme = nuevo;
+    try { localStorage.setItem("tema", nuevo); } catch (e) {}
+    dibujar();
+  };
+})();
+
+/* ---------- recepción ---------- */
+function recibir(l) {
+  const ms = Date.parse(l.ts) || Date.now();
+  const s = String(l.sensor).toUpperCase();
+  if (!(s in hist)) return;
+  hist[s].push({ t: ms, v: Number(l.valor) });
+  const corte = ms - VENTANA_MS;
+  while (hist[s].length && hist[s][0].t < corte) hist[s].shift();
+  ultimo[s] = { t: ms, v: Number(l.valor) };
+  ultimaLlegada = Date.now();
+  recientes.unshift({ t: ms, s, v: Number(l.valor) });
+  if (recientes.length > 10) recientes.pop();
+  evaluar(s, ms);
+}
+
+function episodio(clave, activa, texto, ms, nivel) {
+  if (activa && !abiertas[clave]) { abiertas[clave] = true; evento(ms, texto, nivel); }
+  else if (!activa) abiertas[clave] = false;
+}
+function evento(ms, texto, nivel) {
+  alertas.unshift({ t: ms, texto, nivel });
+  if (alertas.length > 30) alertas.pop();
+}
+
+function evaluar(s, ms) {
+  if (s in UMBRAL) {
+    const agua = ultimo[s].v >= UMBRAL[s];
+    if (estadoAgua[s] !== undefined && estadoAgua[s] !== agua)
+      evento(ms, `${NOMBRE[s]}: ${agua ? "detecta agua" : "ahora está seco"}`, "info");
+    estadoAgua[s] = agua;
+  }
+  if (s === "ESTADO_B1") {
+    const on = ultimo.ESTADO_B1.v === 1;
+    if (estadoBomba !== undefined && estadoBomba !== on) evento(ms, on ? "Bomba encendida" : "Bomba apagada", "info");
+    if (on && estadoBomba !== true) bombaDesde = ms;
+    if (!on) bombaDesde = null;
+    estadoBomba = on;
+  }
+  const b = ultimo.ESTADO_B1, f = ultimo.FLUJO_1;
+  if (b && f && (s === "FLUJO_1" || s === "ESTADO_B1")) {
+    const sinFlujo = b.v === 1 && bombaDesde !== null && (ms - bombaDesde) > GRACIA_BOMBA_MS && f.v < FLUJO_MIN_BOMBA;
+    episodio("bombasinflujo", sinFlujo, "Bomba encendida sin flujo", ms, "bad");
+  }
+}
+
+/* ---------- gráficas SVG ---------- */
+function grafica(destino, series, { min, max, umbrales = [], unidad, decimales = 0 }) {
+  const angosto = destino.clientWidth && destino.clientWidth < 520;
+  const W = angosto ? 420 : 640, H = angosto ? 280 : 250, m = { l: 44, r: 12, t: 10, b: 26 };
+  const tFin = Math.max(Date.now(), ...series.flatMap((s) => s.puntos.slice(-1).map((p) => p.t)));
+  const tIni = tFin - VENTANA_MS;
+  const x = (t) => m.l + (t - tIni) / VENTANA_MS * (W - m.l - m.r);
+  const y = (v) => m.t + (1 - (v - min) / (max - min)) * (H - m.t - m.b);
+  const css = getComputedStyle(document.documentElement);
+  const col = (n) => css.getPropertyValue(n).trim();
+  let g = "";
+  for (let i = 0; i <= 4; i++) {
+    const v = min + (max - min) * i / 4;
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${col("--grid")}"/>` +
+         `<text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="${col("--ink3")}">${num(v, decimales)}</text>`;
+  }
+  for (let i = 0; i <= 5; i++) {
+    const t = tIni + VENTANA_MS * i / 5;
+    g += `<text x="${x(t)}" y="${H - 6}" text-anchor="${i === 5 ? "end" : i === 0 ? "start" : "middle"}" font-size="11" fill="${col("--ink3")}">${new Date(t).toLocaleTimeString("es-CO", { hour12: false })}</text>`;
+  }
+  for (const u of umbrales)
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(u.v)}" y2="${y(u.v)}" stroke="${col("--ink3")}" stroke-dasharray="4 4"/>` +
+         `<text x="${W - m.r - 4}" y="${y(u.v) - 4}" text-anchor="end" font-size="11" fill="${col("--ink3")}">${u.etiqueta}</text>`;
+  for (const s of series) {
+    if (!s.puntos.length) continue;
+    const d = s.puntos.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(Math.max(min, Math.min(max, p.v))).toFixed(1)}`).join("");
+    g += `<path d="${d}" fill="none" stroke="${col(s.color)}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const u = s.puntos[s.puntos.length - 1];
+    g += `<circle cx="${x(u.t)}" cy="${y(Math.max(min, Math.min(max, u.v)))}" r="4" fill="${col(s.color)}" stroke="${col("--surface")}" stroke-width="2"/>`;
+  }
+  const hayDatos = series.some((s) => s.puntos.length);
+  if (!hayDatos) g += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" font-size="13" fill="${col("--ink3")}">Sin lecturas todavía</text>`;
+  g += `<line id="cruz" y1="${m.t}" y2="${H - m.b}" stroke="${col("--ink3")}" style="display:none"/>`;
+  destino.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfica de ${unidad}">${g}<rect x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}" fill="transparent" class="zona"/></svg><div class="tip"></div>`;
+  const svg = destino.querySelector("svg"), tip = destino.querySelector(".tip"), cruz = destino.querySelector("#cruz");
+  svg.querySelector(".zona").addEventListener("pointermove", (e) => {
+    sobreGrafica = true;
+    const r = svg.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width * W;
+    const t = tIni + (px - m.l) / (W - m.l - m.r) * VENTANA_MS;
+    let txt = "", cercano = null;
+    for (const s of series) {
+      let mejor = null;
+      for (const p of s.puntos) if (!mejor || Math.abs(p.t - t) < Math.abs(mejor.t - t)) mejor = p;
+      if (mejor && Math.abs(mejor.t - t) < 30000) { txt += `<div><i class="marca" style="background:${col(s.color)}"></i> ${s.nombre}: <b>${num(mejor.v, decimales === 0 ? 0 : 2)} ${unidad}</b></div>`; cercano = cercano || mejor; }
+    }
+    if (!cercano) { tip.style.display = "none"; cruz.style.display = "none"; return; }
+    cruz.setAttribute("x1", x(cercano.t)); cruz.setAttribute("x2", x(cercano.t)); cruz.style.display = "";
+    tip.innerHTML = `<div style="color:var(--ink3)">${hora(cercano.t)}</div>${txt}`;
+    tip.style.left = (x(cercano.t) / W * 100) + "%"; tip.style.top = "30%"; tip.style.display = "block";
+  });
+  svg.querySelector(".zona").addEventListener("pointerleave", () => { sobreGrafica = false; tip.style.display = "none"; cruz.style.display = "none"; });
+}
+
+/* ---------- pintar ---------- */
+function dibujar() {
+  const ahora = Date.now();
+  for (const [id, clave] of [["t1", "NIVEL_T1"], ["t2", "NIVEL_T2"]]) {
+    const u = ultimo[clave];
+    if (!u) continue;
+    const agua = u.v >= UMBRAL[clave];
+    $(id + "est").innerHTML = `<span class="insignia" style="color:var(--${agua ? "s1" : "off"})">${agua ? "AGUA" : "SECO"}</span>`;
+    $(id + "adc").textContent = `Lectura ${Math.round(u.v)} · umbral ${UMBRAL[clave]} · ${hora(u.t)}`;
+    $(id + "bar").style.width = (u.v * 100 / ADC_MAX) + "%";
+  }
+  if (ultimo.FLUJO_1) {
+    $("flujo").innerHTML = `${num(ultimo.FLUJO_1.v, 2)}<small>L/min</small>`;
+    $("flujoSub").textContent = hora(ultimo.FLUJO_1.t);
+  }
+  if (ultimo.ESTADO_B1) {
+    const on = ultimo.ESTADO_B1.v === 1;
+    $("bomba").innerHTML = `<span class="insignia" style="color:var(--${on ? "ok" : "off"})">${on ? "ENCENDIDA" : "APAGADA"}</span>`;
+    $("bombaSub").textContent = hora(ultimo.ESTADO_B1.t);
+  }
+  if (!sobreGrafica) dibujarGraficas();
+  dibujarResto(ahora);
+}
+
+function dibujarGraficas() {
+  grafica($("gNivel"), [{ nombre: "Sensor 1", color: "--s1", puntos: hist.NIVEL_T1 }, { nombre: "Sensor 2", color: "--s2", puntos: hist.NIVEL_T2 }],
+          { min: 0, max: 4096, umbrales: [{ v: UMBRAL.NIVEL_T1, etiqueta: "umbral sensor 1" }, { v: UMBRAL.NIVEL_T2, etiqueta: "umbral sensor 2" }], unidad: "ADC" });
+  grafica($("gFlujo"), [{ nombre: "Flujo", color: "--s3", puntos: hist.FLUJO_1 }],
+          { min: 0, max: 6, umbrales: [], unidad: "L/min", decimales: 1 });
+}
+
+function dibujarResto(ahora) {
+  if (ultimaLlegada) episodio("sindatos", ahora - ultimaLlegada > SIN_DATOS_MS, "La maqueta lleva más de 5 minutos sin enviar datos", ahora, "bad");
+  $("alertas").innerHTML = alertas.length
+    ? alertas.map((a) => `<li><time>${hora(a.t)}</time><span style="color:var(${COLOR[a.nivel]})">● ${a.texto}</span></li>`).join("")
+    : '<li class="vacio">Sin alertas.</li>';
+  $("tabla").innerHTML = recientes.map((r) => {
+    const v = r.s.startsWith("NIVEL") ? `${Math.round(r.v)} · ${r.v >= UMBRAL[r.s] ? "AGUA" : "SECO"}` : r.s === "FLUJO_1" ? `${num(r.v, 2)} L/min` : (r.v === 1 ? "ENCENDIDA" : "APAGADA");
+    return `<tr><td>${hora(r.t)}</td><td>${NOMBRE[r.s]}</td><td>${v}</td></tr>`;
+  }).join("") || '<tr><td colspan="3" class="vacio">Sin lecturas.</td></tr>';
+
+  const hace = ultimaLlegada ? Math.round((ahora - ultimaLlegada) / 1000) : null;
+  const vivo = hace !== null && hace < 30;
+  $("punto").className = "punto " + (vivo ? "vivo" : conectado ? "espera" : "");
+  $("estadoTxt").textContent = !conectado ? "Sin conexión con el servidor" : vivo ? `En vivo · última lectura hace ${hace} s` : hace === null ? "Conectado · esperando la maqueta" : `Maqueta sin enviar hace ${hace} s`;
+  const b = $("banda");
+  b.className = "banda" + (!vivo ? " aviso" : "");
+  b.textContent = simulando ? "Estás viendo una PRUEBA LOCAL con lecturas inventadas, no son datos de la maqueta."
+    : vivo ? "Recibiendo lecturas reales de la maqueta." : hace === null ? "Esperando lecturas de la maqueta… Si ya está encendida, revisa que el puente del PC esté corriendo." : "La maqueta dejó de enviar lecturas.";
+}
+
+/* ---------- conexión ---------- */
+let conectado = false;
+async function iniciar() {
+  try {
+    const r = await (await fetch("/api/ultimas")).json();
+    r.ultimas.forEach(recibir);
+    if (r.ultimas.length) ultimaLlegada = r.ultimaRecepcion ? Date.parse(r.ultimaRecepcion) : ultimaLlegada;
+  } catch (e) {}
+  const es = new EventSource("/api/stream");
+  es.onopen = () => { conectado = true; dibujar(); };
+  es.onerror = () => { conectado = false; dibujar(); };
+  es.addEventListener("lectura", (e) => { recibir(JSON.parse(e.data)); dibujar(); });
+}
+
+/* ---------- prueba local ---------- */
+$("btnSim").onclick = () => {
+  if (simulando) { clearInterval(simulando); simulando = null; $("btnSim").textContent = "Iniciar prueba local"; dibujar(); return; }
+  let a1 = 3300, a2 = 300, bomba = 0;   // misma lógica que la ESP32: S1 >= 3000 enciende, S2 >= 1200 apaga
+  $("btnSim").textContent = "Detener prueba local";
+  simulando = setInterval(() => {
+    if (a2 >= UMBRAL.NIVEL_T2) bomba = 0; else if (a1 >= UMBRAL.NIVEL_T1) bomba = 1;
+    if (bomba) { a1 = Math.max(0, a1 - 90); a2 = Math.min(4095, a2 + 130); } else { a1 = Math.min(4095, a1 + 70); a2 = Math.max(0, a2 - 60); }
+    const ts = new Date().toISOString(), r = () => (Math.random() - .5) * 40;
+    recibir({ sensor: "NIVEL_T1", valor: Math.round(Math.max(0, a1 + r())), ts });
+    recibir({ sensor: "NIVEL_T2", valor: Math.round(Math.max(0, a2 + r())), ts });
+    recibir({ sensor: "FLUJO_1", valor: bomba ? 1.5 + Math.random() * .4 : 0, ts });
+    recibir({ sensor: "ESTADO_B1", valor: bomba, ts });
+    dibujar();
+  }, 2000);
+};
+
+dibujar();
+iniciar();
+setInterval(dibujar, 1000);
+</script>
+</body>
+</html>
