@@ -1,0 +1,4 @@
+node_modules/
+secretos.h
+mqtt_ca.h
+*.env
