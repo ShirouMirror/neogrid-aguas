@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeoGrid Aguas – Gestión del conocimiento</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mut:#5b6b82;--acc:#0b7285;--acc2:#e8f4f6;--line:#dbe3ec;--warn:#fff4d6;--warnb:#e0b400}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1722;--card:#17212f;--ink:#e8eef6;--mut:#9fb0c5;--acc:#4dc3d6;--acc2:#12303a;--line:#2a3a4f;--warn:#3a3210;--warnb:#c9a400}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#0b7285,#14213d);color:#fff;padding:36px 16px}
+header div,main,footer{max-width:1040px;margin:0 auto}
+header h1{margin:0 0 6px;font-size:1.9rem}header p{margin:0;opacity:.9}
+nav{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+nav div{max-width:1040px;margin:0 auto;padding:0 8px}
+nav a{display:inline-block;padding:12px 10px;color:var(--ink);text-decoration:none;font-size:.88rem}
+nav a:hover{color:var(--acc)}
+main{padding:8px 16px 40px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0}
+h2{margin:0 0 10px;color:var(--acc);font-size:1.35rem}h3{margin:18px 0 6px;font-size:1.05rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem;margin:10px 0}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--acc2)}
+.tw{overflow-x:auto}
+.todo{background:var(--warn);border-left:4px solid var(--warnb);padding:8px 12px;border-radius:6px;font-size:.9rem;margin:8px 0}
+.kn{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0}
+.kn h3{margin-top:0}.kn dl{margin:0;display:grid;grid-template-columns:130px 1fr;gap:4px 12px}
+.kn dt{font-weight:600;color:var(--mut)}.kn dd{margin:0}
+.pbi{width:100%;height:560px;border:1px solid var(--line);border-radius:8px;background:var(--acc2);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mut);padding:16px}
+iframe.pbi{display:block}
+a{color:var(--acc)}code{background:var(--acc2);padding:1px 5px;border-radius:4px;font-size:.88em}
+footer{padding:20px 16px 40px;color:var(--mut);font-size:.85rem}
+@media(max-width:600px){.kn dl{grid-template-columns:1fr}.kn dt{margin-top:6px}}
+</style>
+</head>
+<body>
+<header><div>
+<h1>NeoGrid Aguas</h1>
+<p>Monitoreo de tuberías y aguas residuales en una ciudad inteligente a escala · Gestión del conocimiento con Big Data</p>
+</div></header>
+<nav><div>
+<a href="#identificacion">Identificación</a><a href="#problema">Problema</a><a href="#justificacion">Justificación</a><a href="#objetivos">Objetivos</a><a href="#marco">Marco referencial</a><a href="#metodologia">Metodología</a><a href="#desarrollo">Desarrollo</a><a href="#datos">Gestión de datos</a><a href="#dashboard">Dashboard</a><a href="#conocimientos">Conocimientos</a><a href="#decisiones">Decisiones</a><a href="#resultados">Resultados</a><a href="#conclusiones">Conclusiones</a><a href="#referencias">Referencias</a>
+</div></nav>
+<main>
+
+<section id="identificacion"><h2>1. Identificación</h2>
+<div class="tw"><table>
+<tr><th>Proyecto</th><td>NeoGrid Aguas: base de datos, ETL, alertas, bodega de datos y tablero para una maqueta de ciudad inteligente</td></tr>
+<tr><th>Institución</th><td>Universidad de Cundinamarca</td></tr>
+<tr><th>Programa / nivel</th><td>Proyecto de 7.º semestre</td></tr>
+<tr><th>Asignatura</th><td>Big Data – Gestor del conocimiento</td></tr>
+<tr><th>Docente</th><td>Edison Gustavo Cañón Varela</td></tr>
+<tr><th>Grupo</th><td>Tuberías y aguas residuales</td></tr>
+<tr><th>Integrantes</th><td>Tomás Felipe Niño Roa (maqueta física y sensores) · Juan Miguel Espejo Bueno (base de datos, ETL, bodega de datos, alertas, Power BI y sitio web)</td></tr>
+<tr><th>Año</th><td>2026</td></tr>
+</table></div>
+<p>Sitio en vivo de la maqueta: <a href="/" target="_blank" rel="noopener">tablero en tiempo real</a>.</p>
+</section>
+
+<section id="problema"><h2>2. Planteamiento del problema</h2>
+<p>En una ciudad, la red de agua potable y de aguas residuales se vigila con frecuencia solo cuando ya hay un daño visible: un tanque que se desborda, una bomba que trabaja en seco o una fuga que se detecta semanas después en la factura. Los datos de los sensores existen, pero suelen quedar dispersos, sin estructura común y sin alertas que avisen a la persona responsable a tiempo.</p>
+<p>En la maqueta de NeoGrid, dos tanques, una bomba y una tubería con sensor de flujo generan lecturas continuas. A esto se suma el consumo de 200 casas simuladas en 6 barrios. La pregunta que guía el proyecto es:</p>
+<p><strong>¿Cómo organizar y analizar los datos de sensores y de consumo de una red de agua a pequeña escala para detectar a tiempo situaciones anómalas (niveles críticos, bombas sin flujo, posibles fugas) y apoyar decisiones de operación?</strong></p>
+<h3>Preguntas de análisis</h3>
+<ul>
+<li>¿En qué franjas del día se concentra el consumo y cómo se reparte entre barrios y estratos?</li>
+<li>¿Qué casas presentan consumo nocturno que sugiera una posible fuga?</li>
+<li>¿Qué tan concentrado está el consumo en pocas casas?</li>
+<li>¿Cuánto tiempo trabaja la bomba y con qué flujo, según la hora del día?</li>
+</ul>
+</section>
+
+<section id="justificacion"><h2>3. Justificación</h2>
+<ul>
+<li><strong>Técnica:</strong> separa la operación (base relacional) del análisis (bodega dimensional), lo que permite consultas más rápidas y repetibles; en las pruebas del proyecto, una consulta repetida sobre el DW tardó 72 ms frente a 463 ms en el modelo relacional.</li>
+<li><strong>Operativa:</strong> las alertas automáticas y el correo de resumen reducen la dependencia de que alguien mire una pantalla.</li>
+<li><strong>Académica:</strong> aplica de extremo a extremo el ciclo del dato: captura, almacenamiento, ETL, modelado, visualización y decisión.</li>
+<li><strong>Social:</strong> el agua es un recurso limitado; detectar fugas y picos de consumo contribuye a su uso responsable.</li>
+</ul>
+</section>
+
+<section id="objetivos"><h2>4. Objetivos</h2>
+<h3>General</h3>
+<p>Construir una solución de datos para la maqueta NeoGrid Aguas que integre lecturas de sensores y consumo simulado de viviendas, y que produzca conocimiento útil mediante un tablero interactivo y alertas.</p>
+<h3>Específicos</h3>
+<ol>
+<li>Diseñar e implementar la base de datos relacional (modelo entidad-relación) en SQL Server.</li>
+<li>Generar y cargar datos simulados de sensores (1.000.000 de lecturas) y de consumo de casas (576.000 registros en 30 días).</li>
+<li>Implementar un proceso ETL con SSIS que limpie, rechace y concilie registros y permita cargas repetibles.</li>
+<li>Construir una bodega de datos en esquema estrella (constelación de hechos) para el análisis.</li>
+<li>Implementar alertas con trazabilidad y envío de resumen por correo.</li>
+<li>Publicar un tablero en Power BI y documentar al menos cinco conocimientos y dos decisiones sustentadas en los datos.</li>
+</ol>
+</section>
+
+<section id="marco"><h2>5. Marco referencial</h2>
+<div class="todo">Nota: el grupo no cuenta con antecedentes propios del proyecto; se usan fuentes públicas verificables, listadas en la sección 14.</div>
+<h3>Marco conceptual</h3>
+<ul>
+<li><strong>Red inteligente de agua / IoT:</strong> sensores conectados que miden nivel, flujo y estado de equipos y envían los datos para su análisis. Las revisiones sobre monitoreo y gestión de infraestructuras urbanas de agua recogen estas técnicas (ver referencia 1).</li>
+<li><strong>Bodega de datos y modelado dimensional:</strong> organiza los datos en tablas de hechos y dimensiones (esquema estrella) para consultas analíticas (Kimball y Ross, referencias 2 y 3).</li>
+<li><strong>ETL:</strong> extraer, transformar y cargar; incluye validación, rechazo de registros inválidos y conciliación de conteos.</li>
+<li><strong>CRISP-DM:</strong> modelo de proceso para proyectos de datos en seis fases (referencia 4).</li>
+</ul>
+<h3>Marco tecnológico</h3>
+<p>Microcontrolador ESP32 con sensores de nivel y flujo, SQL Server, SQL Server Integration Services (SSIS), Database Mail y SQL Server Agent, Power BI, y una página web con Node.js y transmisión en vivo (Server-Sent Events).</p>
+<h3>Marco legal y ético</h3>
+<p>Los datos de las casas son simulados y no corresponden a personas reales, por lo que no hay datos personales. Si el sistema se llevara a datos reales de usuarios, aplicaría la Ley 1581 de 2012 de protección de datos personales de Colombia.</p>
+</section>
+
+<section id="metodologia"><h2>6. Metodología y cronograma (CRISP-DM)</h2>
+<div class="tw"><table>
+<tr><th>Fase CRISP-DM</th><th>Qué se hizo en NeoGrid</th><th>Producto</th><th>Estado</th></tr>
+<tr><td>1. Comprensión del negocio</td><td>Definir el problema del agua en la maqueta, sensores y variables a vigilar, umbrales de alerta.</td><td>Tema y descripción de la maqueta</td><td>Hecho</td></tr>
+<tr><td>2. Comprensión de los datos</td><td>Catálogo de sensores, unidades y entidades; diseño del modelo entidad-relación (24 entidades).</td><td>Modelo relacional y diccionario de datos</td><td>Hecho</td></tr>
+<tr><td>3. Preparación de los datos</td><td>Simulación de lecturas y consumo; ETL con SSIS: Excel → RAW → LECTURA → DW; reglas de duplicados y rechazos; conciliación.</td><td>Paquetes SSIS 01–04, tabla de rechazos</td><td>Hecho</td></tr>
+<tr><td>4. Modelado</td><td>Bodega dimensional: FACT_LECTURA y FACT_CONSUMO; DIM_FECHA, DIM_HORA, DIM_ORIGEN, DIM_SENSOR, DIM_CASA. Reglas de alerta y detección de posibles fugas.</td><td>DW_NeoGrid_Aguas, procedimientos de alertas</td><td>Hecho</td></tr>
+<tr><td>5. Evaluación</td><td>Conteos de verificación, comparación de tiempos relacional vs DW, pruebas de alertas y revisión de valores atípicos.</td><td>Informe técnico del proyecto, script 20</td><td>Hecho / en curso</td></tr>
+<tr><td>6. Despliegue</td><td>Tablero en vivo de la maqueta, correo de resumen, tablero de Power BI y este sitio.</td><td>Sitio web, Power BI, informe y video</td><td>En curso</td></tr>
+</table></div>
+<div class="todo">Las fechas exactas de cada fase se ajustan al cronograma real del grupo antes de entregar. Hitos conocidos: presentación del ETL el 13 de noviembre y entrega del tablero y sitio hacia el 20 de noviembre de 2026.</div>
+</section>
+
+<section id="desarrollo"><h2>7. Desarrollo de la solución</h2>
+<ol>
+<li><strong>Maqueta:</strong> ESP32 + sensores de nivel (2 tanques), flujo y estado de bomba; envía lecturas a la nube.</li>
+<li><strong>Base relacional</strong> <code>NeoGrid_Aguas</code>: entidades de ciudad, tanques, tuberías, bomba, sensores, lecturas, alertas, usuarios y procesos.</li>
+<li><strong>ETL (SSIS):</strong> paquete 01 (Excel→RAW), 02 (RAW→LECTURA), 03 (LECTURA→DW), 04 (CONSUMO→DW). Carga incremental controlada con claves únicas y rechazos registrados.</li>
+<li><strong>Bodega</strong> <code>DW_NeoGrid_Aguas</code>: constelación con dos tablas de hechos que comparten dimensiones.</li>
+<li><strong>Alertas:</strong> procedimiento <code>usp_DetectarAlertas</code>, auditoría y resumen por correo con trabajos programados.</li>
+<li><strong>Visualización:</strong> página en vivo y tablero de Power BI conectado al DW.</li>
+</ol>
+</section>
+
+<section id="datos"><h2>8. Gestión de los datos</h2>
+<h3>Fuente, periodo y volumen</h3>
+<div class="tw"><table>
+<tr><th>Conjunto</th><th>Origen</th><th>Periodo</th><th>Registros</th></tr>
+<tr><td>Lecturas de sensores (FACT_LECTURA)</td><td>Simulación basada en la maqueta + lecturas reales de prueba</td><td>1 al 29 de septiembre de 2026</td><td>986.456 cargados al DW</td></tr>
+<tr><td>Consumo de casas (FACT_CONSUMO)</td><td>Simulación: 200 casas, 6 barrios, lecturas cada 15 min</td><td>1 al 30 de septiembre de 2026 (30 días)</td><td>576.000</td></tr>
+</table></div>
+<p>Los 4 sensores de la maqueta (nivel T1, nivel T2, flujo y estado de bomba) aportan lecturas de 700 a 3.532 (nivel, unidades del conversor ADC), 0 a 5,2 L/min (flujo) y 0/1 (bomba). Total de datos manejados: 1.562.456 registros. Los datos son <strong>simulados</strong>; la simulación incluye ciclos diarios, diferencias por estrato y tipo de uso, y casos de posible fuga.</p>
+<h3>Variables principales</h3>
+<ul>
+<li><strong>FACT_CONSUMO:</strong> Litros (cuantitativa, L por lectura de 15 min), CasaKey, FechaKey, HoraKey, FechaHora.</li>
+<li><strong>DIM_CASA:</strong> Barrio, Zona, Estrato (solo 4 y 5 en los datos), Habitantes, TipoUso, Tanque, Medidor.</li>
+<li><strong>DIM_HORA:</strong> Franja (Madrugada, Mañana, Tarde, Noche). <strong>DIM_FECHA:</strong> día de la semana, fin de semana.</li>
+<li><strong>FACT_LECTURA:</strong> Valor del sensor (nivel, flujo L/min, estado de bomba 0/1) y su dimensión de sensor.</li>
+</ul>
+<h3>Reglas de calidad aplicadas</h3>
+<ul>
+<li>Rechazo de lecturas con valor nulo, fuera de rango o con sensor inexistente (8.673 rechazadas del millón simulado).</li>
+<li>Detección de duplicados por clave (4.887 duplicadas).</li>
+<li>Conciliación: 1.000.000 = 986.440 procesadas + 4.887 duplicadas + 8.673 rechazadas.</li>
+<li>Claves únicas en las tablas de hechos: repetir la carga no duplica filas.</li>
+<li>Consumo sin valores negativos ni nulos (verificado con script 20, Q0).</li>
+<li>Conteo del DW de consumo igual al relacional (576.000 = 576.000; 3.657.144,115 L en ambos).</li>
+</ul>
+</section>
+
+<section id="dashboard"><h2>9. Dashboard interactivo (Power BI)</h2>
+<p>El tablero se alimenta del DW. Incluye 5 indicadores generales, 3 análisis univariados, 3 bivariados, 1 multivariado, filtros por barrio, estrato, tipo de uso y franja, y títulos con unidades. Usa comparaciones en valores absolutos (litros) y relativos (% y litros por casa-día).</p>
+<h3>Preguntas que responde el tablero</h3>
+<ul>
+<li><strong>Indicadores generales:</strong> litros totales (3.657.144 L), casas (200), litros por casa-día (609,5), lecturas de consumo (576.000) y litros de madrugada.</li>
+<li><strong>Univariados:</strong> distribución de litros por lectura (mediana 5,28 L, percentil 99 en 22,33 L, máximo 35,05 L: cola larga a la derecha); casas por estrato y tipo de uso; valores de cada sensor de la maqueta (bomba encendida en el 20,1 % de las lecturas; flujo promedio 0,64 L/min).</li>
+<li><strong>Bivariados:</strong> litros por franja; litros por casa-día según estrato y tipo de uso; entre semana frente a fin de semana.</li>
+<li><strong>Multivariado:</strong> barrio × franja × tipo de uso. La vivienda tiene su pico en la mañana (326 L/casa-día en La Esperanza) y el comercio en la tarde (cerca de 288 L, casi igual en todos los barrios).</li>
+</ul>
+<!-- REEMPLAZAR este div por: <iframe class="pbi" title="Tablero NeoGrid Aguas" src="URL_DE_POWER_BI" allowfullscreen></iframe> -->
+<div class="pbi" id="pbi-slot">Aquí se incrusta el tablero de Power BI (pendiente de publicar).</div>
+</section>
+
+<section id="conocimientos"><h2>10. Conocimientos evidentes</h2>
+<p>Todas las cifras salen del DW (<code>DW_NeoGrid_Aguas</code>) con el script 20 y se pueden repetir. Periodo de consumo: 1 al 30 de septiembre de 2026 (30 días, 576.000 registros, 200 casas, sin nulos ni negativos).</p>
+
+<div class="kn"><h3>Conocimiento 1 – La mañana concentra más consumo y la madrugada, muy poco</h3><dl>
+<dt>Pregunta</dt><dd>¿En qué franja del día se consume más agua?</dd>
+<dt>Variables</dt><dd>Litros (FACT_CONSUMO), Franja y Hora (DIM_HORA)</dd>
+<dt>Procedimiento</dt><dd>Suma de litros por franja y por hora, y su porcentaje del total (script 20, Q5).</dd>
+<dt>Resultado</dt><dd>Mañana 1.328.413 L (36,32 %), noche 1.085.974 L (29,69 %), tarde 980.459 L (26,81 %), madrugada 262.299 L (7,17 %). Por hora: máximo a las 7:00 (334.818 L), luego 6:00 (281.277 L) y 19:00 (275.589 L); mínimo a las 2:00 (18.781 L). Gráfico: columnas por franja y línea por hora.</dd>
+<dt>Hallazgo</dt><dd>Hay dos picos claros, uno en la mañana (6–7 h) y otro en la noche (19 h), con un repunte menor al mediodía (12–13 h, cerca de 221.000 L por hora).</dd>
+<dt>Interpretación</dt><dd>Coincide con hábitos del hogar (aseo y cocina). Es un patrón de datos simulados con ese comportamiento, no una medición real.</dd>
+<dt>Utilidad</dt><dd>Reforzar la vigilancia de tanques y bomba entre las 6 y las 8 h y a las 19 h.</dd>
+<dt>Limitación</dt><dd>Solo 30 días; los ciclos horarios vienen de la simulación.</dd></dl></div>
+
+<div class="kn"><h3>Conocimiento 2 – En vivienda, el estrato 5 consume menos por casa que el estrato 4, pero más por habitante</h3><dl>
+<dt>Pregunta</dt><dd>¿Cambia el consumo según estrato y tipo de uso?</dd>
+<dt>Variables</dt><dd>Litros, Estrato, TipoUso, Habitantes (DIM_CASA)</dd>
+<dt>Procedimiento</dt><dd>Litros por casa-día (litros ÷ casas ÷ días) por tipo de uso y estrato (script 20, Q6 y Q3). Litros por habitante-día = litros por casa-día ÷ habitantes por casa.</dd>
+<dt>Resultado</dt><dd>Vivienda estrato 4 (128 casas, 4,5 habitantes por casa): 671,5 L/casa-día, unos 149 L/habitante-día. Vivienda estrato 5 (64 casas, 3,0 habitantes por casa): 485,8 L/casa-día, unos 162 L/habitante-día. Comercio estrato 4 (6 locales): 605,2 L/día; estrato 5 (2 locales): 612,1 L/día. Gráfico: barras agrupadas.</dd>
+<dt>Hallazgo</dt><dd>La vivienda de estrato 5 consume 27,7 % menos por casa, pero el 8,5 % más por habitante. La diferencia por casa se explica sobre todo por el menor número de habitantes.</dd>
+<dt>Interpretación</dt><dd>Asociación, no causalidad. Solo existen los estratos 4 y 5, así que no se puede hablar de una tendencia a lo largo de todos los estratos.</dd>
+<dt>Utilidad</dt><dd>Dimensionar la demanda por número de habitantes y no solo por estrato.</dd>
+<dt>Limitación</dt><dd>Solo dos estratos; los grupos de comercio (6 y 2) son muy pequeños para concluir.</dd></dl></div>
+
+<div class="kn"><h3>Conocimiento 3 – El comercio baja a la mitad el fin de semana; la vivienda sube</h3><dl>
+<dt>Pregunta</dt><dd>¿Se consume distinto en fin de semana?</dd>
+<dt>Variables</dt><dd>Litros, EsFinDeSemana (DIM_FECHA), TipoUso</dd>
+<dt>Procedimiento</dt><dd>Litros por casa-día por tipo de uso y tipo de día; se usa el promedio por día porque hay 22 días entre semana y 8 de fin de semana (script 20, Q7).</dd>
+<dt>Resultado</dt><dd>Comercio: 700,5 L entre semana frente a 349,6 L en fin de semana (−50,1 %). Vivienda: 586,4 L frente a 673,5 L (+14,8 %).</dd>
+<dt>Hallazgo</dt><dd>Los dos tipos de uso se comportan en sentido contrario: el comercio consume menos cuando cierra y la vivienda consume más cuando hay más gente en casa.</dd>
+<dt>Interpretación</dt><dd>Es coherente con el uso esperado de cada tipo de inmueble, aunque proviene de la lógica de la simulación.</dd>
+<dt>Utilidad</dt><dd>Ajustar umbrales de alerta por tipo de uso y tipo de día para evitar falsas alarmas.</dd>
+<dt>Limitación</dt><dd>Comercio: solo 8 locales; 8 días de fin de semana en el periodo.</dd></dl></div>
+
+<div class="kn"><h3>Conocimiento 4 – Cuatro viviendas se separan del resto en el consumo de madrugada</h3><dl>
+<dt>Pregunta</dt><dd>¿Qué casas consumen mucho cuando se espera poco uso?</dd>
+<dt>Variables</dt><dd>Litros en la franja Madrugada por casa-día</dd>
+<dt>Procedimiento</dt><dd>Promedio de madrugada por casa (30 días) comparado con el promedio y la mediana de todas las casas (script 20, Q10).</dd>
+<dt>Resultado</dt><dd>Promedio general 43,7 L, mediana 41,2 L. CASA-058 (Villa del Sol): 88,9 L; CASA-145 (La Esperanza): 86,6 L; CASA-029 (Los Álamos): 68,7 L; CASA-116 (San Carlos): 66,8 L. Un día de CASA-058 llegó a 190,6 L. Gráfico: barras de las 15 casas con mayor promedio.</dd>
+<dt>Hallazgo</dt><dd>CASA-058 y CASA-145 duplican la mediana. El resto de la lista (cerca de 66 L) corresponde a casas de Villa del Sol y La Esperanza, barrios cuya madrugada es más alta en general (unos 65 L por vivienda frente a 22 L en El Prado), por lo que no son casos aislados.</dd>
+<dt>Interpretación</dt><dd>Son candidatas a inspección, no fugas confirmadas. Los valores altos se revisaron: provienen de las casas marcadas como posible fuga en la simulación (42 casas-día en 6 casas con la regla del proyecto).</dd>
+<dt>Utilidad</dt><dd>Priorizar la revisión de las cuatro casas y vigilar los dos barrios.</dd>
+<dt>Limitación</dt><dd>Sin medición real; el umbral es una regla del proyecto.</dd></dl></div>
+
+<div class="kn"><h3>Conocimiento 5 – El consumo por barrio varía casi tres veces, y está poco concentrado por casa</h3><dl>
+<dt>Pregunta</dt><dd>¿El consumo está concentrado en pocas casas o en ciertos barrios?</dd>
+<dt>Variables</dt><dd>Litros por casa y por barrio (DIM_CASA)</dd>
+<dt>Procedimiento</dt><dd>Aporte de las 10 y 20 casas con más consumo sobre el total (Q11) y litros por casa-día por barrio (Q8).</dd>
+<dt>Resultado</dt><dd>Top 10 casas: 278.085 L, 7,60 % del total. Top 20 (10 % de las casas): 550.293 L, 15,05 %. Por barrio (L/casa-día): Villa del Sol 886,6; La Esperanza 876,5; Los Álamos 645,5; San Carlos 598,0; Santa Rita 333,9; El Prado 309,0. Gráfico: barras por barrio.</dd>
+<dt>Hallazgo</dt><dd>El 10 % de las casas aporta el 15 %: hay poca concentración individual. La diferencia grande está entre barrios (Villa del Sol consume 2,9 veces lo que El Prado por casa).</dd>
+<dt>Interpretación</dt><dd>Las acciones por barrio rendirán más que las dirigidas a pocas casas. La diferencia refleja los parámetros de simulación de cada barrio.</dd>
+<dt>Utilidad</dt><dd>Enfocar vigilancia y campañas de ahorro en Villa del Sol y La Esperanza.</dd>
+<dt>Limitación</dt><dd>Entre 33 y 34 casas por barrio; no hay medición real.</dd></dl></div>
+
+<h3>Validación</h3>
+<ul>
+<li><strong>Reproducible:</strong> todas las cifras salen de las consultas del script 20 sobre el DW.</li>
+<li><strong>Tamaños de grupo:</strong> se indican casas y días en cada comparación (por ejemplo 128 y 64 viviendas; 22 y 8 días).</li>
+<li><strong>Atípicos:</strong> el máximo por lectura (35,05 L) frente al percentil 99 (22,33 L) y los picos de madrugada se revisaron y se explican por la regla de fuga de la simulación.</li>
+<li><strong>Asociación no es causalidad:</strong> los hallazgos describen patrones de datos simulados y no prueban causas.</li>
+</ul>
+</section>
+
+<section id="decisiones"><h2>11. Decisiones sustentadas</h2>
+<div class="kn"><h3>Decisión 1 – Inspeccionar las cuatro viviendas con mayor consumo de madrugada</h3><dl>
+<dt>Acción</dt><dd>Revisar instalaciones y medidores de CASA-058, CASA-145, CASA-029 y CASA-116.</dd>
+<dt>Hallazgo y valores</dt><dd>Promedio de madrugada de 88,9; 86,6; 68,7 y 66,8 L por día frente a una mediana de 41,2 L (conocimiento 4).</dd>
+<dt>Proceso / ubicación</dt><dd>Procesos CONSUMO_CASAS y ATENCION_ALERTAS; barrios Villa del Sol, La Esperanza, Los Álamos y San Carlos.</dd>
+<dt>Mejora esperada</dt><dd>Llevar el consumo de madrugada de esas casas cerca de la mediana. Indicador: litros de madrugada por casa-día.</dd>
+<dt>Limitaciones</dt><dd>Son candidatas, no fugas confirmadas; datos simulados.</dd></dl></div>
+<div class="kn"><h3>Decisión 2 – Priorizar la vigilancia de Villa del Sol y La Esperanza en el pico de la mañana</h3><dl>
+<dt>Acción</dt><dd>Concentrar revisión de tanques, bomba y alertas en esos barrios entre las 6 y las 8 h.</dd>
+<dt>Hallazgo y valores</dt><dd>Ambos barrios consumen cerca de 880 L/casa-día frente a 309 L en El Prado; en la mañana, las viviendas de esos barrios consumen unos 326 L por día frente a 109 L en El Prado. El pico horario general es a las 7:00 (334.818 L).</dd>
+<dt>Proceso / dispositivo / ubicación</dt><dd>Proceso MONITOREO_NIVEL y CONTROL_BOMBA; tanques T1 y T2 y bomba B1; zonas Norte y Centro.</dd>
+<dt>Mejora esperada</dt><dd>Menos alertas críticas de nivel en la franja de la mañana. Indicador: alertas de nivel por franja y litros por casa-día de la mañana en esos barrios.</dd>
+<dt>Limitaciones</dt><dd>La maqueta física y el consumo de las casas son conjuntos distintos y no están conectados; la bomba de la maqueta muestra más actividad en la tarde (30,5 % de lecturas encendida), por lo que su operación real habría que ajustarla con datos reales.</dd></dl></div>
+</section>
+
+<section id="resultados"><h2>12. Productos y resultados</h2>
+<ul>
+<li>Base de datos relacional con 24 entidades y diccionario de datos.</li>
+<li>Paquetes SSIS 01–04 y carga repetible sin duplicados.</li>
+<li>Bodega dimensional con dos tablas de hechos (986.456 y 576.000 filas).</li>
+<li>1.454 alertas detectadas y 1.453 notificadas por correo; segunda ejecución sin duplicados (0).</li>
+<li>Consulta de 463 ms (relacional) frente a 72 ms (DW) en caliente.</li>
+<li>Página en vivo, tablero de Power BI, informe técnico y video.</li>
+</ul>
+</section>
+
+<section id="conclusiones"><h2>13. Conclusiones</h2>
+<ul>
+<li>Separar la base operativa de la bodega analítica mejora la velocidad y la claridad de los análisis.</li>
+<li>El ETL con rechazos y conciliación hace los resultados confiables y repetibles.</li>
+<li>El tablero permite pasar de datos a preguntas, hallazgos y decisiones, siempre con cautela: los datos son simulados.</li>
+<li>Como trabajo futuro: usar datos reales de la maqueta por más tiempo, calibrar sensores y validar los umbrales de alerta.</li>
+</ul>
+</section>
+
+<section id="referencias"><h2>14. Referencias</h2>
+<ol>
+<li>Advanced Techniques for Monitoring and Management of Urban Water Infrastructures—An Overview. <em>Water</em>, 14(14), 2174. MDPI. <a href="https://www2.mdpi.com/2073-4441/14/14/2174" target="_blank" rel="noopener">https://www2.mdpi.com/2073-4441/14/14/2174</a></li>
+<li>Kimball, R. y Ross, M. (2013). <em>The Data Warehouse Toolkit</em> (3.ª ed.). Wiley. ISBN 9781118530801.</li>
+<li>Kimball Group. Dimensional modeling techniques. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling/" target="_blank" rel="noopener">kimballgroup.com</a></li>
+<li>Chapman, P., Clinton, J., Kerber, R., Khabaza, T., Reinartz, T., Shearer, C. y Wirth, R. (2000). <em>CRISP-DM 1.0: Step-by-step data mining guide</em>. SPSS Inc.</li>
+<li>Congreso de la República de Colombia. Ley 1581 de 2012, por la cual se dictan disposiciones generales para la protección de datos personales.</li>
+</ol>
+</section>
+</main>
+<footer>NeoGrid Aguas · Universidad de Cundinamarca · Big Data – Gestor del conocimiento · 2026</footer>
+</body>
+</html>
