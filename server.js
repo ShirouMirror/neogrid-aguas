@@ -91,6 +91,7 @@ function transmitir(req, res) {
 function archivo(req, res, url) {
   let ruta = decodeURIComponent(url.pathname);
   if (ruta === "/") ruta = "/index.html";
+  if (ruta === "/pgc" || ruta === "/pgc/") ruta = "/pgc/index.html";
   const completa = path.normalize(path.join(PUBLIC, ruta));
   if (!completa.startsWith(PUBLIC)) return responder(res, 403, "prohibido", "text/plain");
   fs.readFile(completa, (err, contenido) => {
