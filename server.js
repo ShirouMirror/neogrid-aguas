@@ -11,7 +11,7 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 3000;
-const TOKEN = process.env.INGEST_TOKEN || "";
+const TOKEN = process.env.INGEST_TOKEN || "fda1y4w42grasa777xd92fsa";
 const PUBLIC = path.join(__dirname, "public");
 const MAX_MEMORIA = 600;          // lecturas recientes que se recuerdan
 const MAX_CUERPO = 64 * 1024;
